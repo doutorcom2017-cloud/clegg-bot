@@ -185,4 +185,34 @@ app.get('/', (req, res) => {
   `)
 })
 
+// Rota para disparo individual
+app.post('/disparar-individual', async (req, res) => {
+  try {
+    const { nome, telefone } = req.body
+    if (!nome || !telefone) {
+      return res.status(400).json({ erro: 'Nome e telefone são obrigatórios' })
+    }
+
+    const mensagem = `Olá ${nome}! Tudo bem? 😊
+
+Aqui é o Leonardo, consultor de saúde.
+
+Tenho uma proposta de plano de saúde com cobertura completa e parcelas que cabem no bolso — a partir de R$89/mês! 🏥
+
+É pra você sozinho ou vai incluir família também?`
+
+    await axios.post(
+      `${EVOLUTION_URL}/message/sendText/${INSTANCE}`,
+      { number: telefone, text: mensagem },
+      { headers: { apikey: EVOLUTION_KEY } }
+    )
+
+    res.json({ sucesso: true, mensagem: 'Disparado com sucesso!' })
+    console.log(`✅ Disparo enviado para ${nome} (${telefone})`)
+  } catch (err) {
+    console.error('Erro no disparo individual:', err.message)
+    res.status(500).json({ erro: err.message })
+  }
+})
+
 app.listen(PORT, () => console.log(`🤖 Clegg Bot v5 rodando na porta ${PORT}`))
